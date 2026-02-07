@@ -1,0 +1,26 @@
+# Environment
+.env
+*.env.local
+
+# Database
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Binary
+idea-bot
+/bot
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Go
+vendor/

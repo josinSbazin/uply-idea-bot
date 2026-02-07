@@ -1,0 +1,159 @@
+{{template "layout" .}}
+
+{{define "content"}}
+<a href="/ideas" class="back-link">← Назад к списку</a>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            {{if .Idea.Title}}{{.Idea.Title}}{{else}}Идея #{{.Idea.ID}}{{end}}
+        </h2>
+        <span class="badge badge-{{.Idea.Status}}">{{.Idea.Status.Label}}</span>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Исходный текст</div>
+        <div class="prose">
+            <p>{{.Idea.RawText}}</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Информация</div>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Автор</div>
+                <div class="detail-value">
+                    {{if .Idea.TelegramUsername}}@{{.Idea.TelegramUsername}}{{else}}{{.Idea.TelegramFirstName}}{{end}}
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Категория</div>
+                <div class="detail-value">
+                    {{if .Idea.Category}}<span class="badge badge-{{.Idea.Category}}">{{.Idea.Category.Label}}</span>{{else}}—{{end}}
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Приоритет</div>
+                <div class="detail-value priority-{{.Idea.Priority}}">
+                    {{if .Idea.Priority}}{{.Idea.Priority.Label}}{{else}}—{{end}}
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Сложность</div>
+                <div class="detail-value">
+                    {{if .Idea.Complexity}}{{.Idea.Complexity.Label}}{{else}}—{{end}}
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Components</div>
+                <div class="detail-value">
+                    {{if .Idea.AffectedComponents}}{{join .Idea.AffectedComponents ", "}}{{else}}—{{end}}
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Создана</div>
+                <div class="detail-value">{{formatDate .Idea.CreatedAt}}</div>
+            </div>
+        </div>
+    </div>
+
+    {{if .Idea.Enriched}}
+    <div class="section">
+        <div class="section-title">AI-анализ</div>
+
+        {{if .Idea.Enriched.Summary}}
+        <div class="prose" style="margin-bottom: 16px;">
+            <strong>Краткое описание:</strong><br>
+            {{.Idea.Enriched.Summary}}
+        </div>
+        {{end}}
+
+        {{if .Idea.Enriched.DetailedDesc}}
+        <div class="prose" style="margin-bottom: 16px;">
+            <strong>Подробное описание:</strong><br>
+            {{.Idea.Enriched.DetailedDesc}}
+        </div>
+        {{end}}
+
+        {{if .Idea.Enriched.UserStory}}
+        <div class="prose" style="margin-bottom: 16px;">
+            <strong>User Story:</strong><br>
+            <em>{{.Idea.Enriched.UserStory}}</em>
+        </div>
+        {{end}}
+
+        {{if .Idea.Enriched.AcceptanceCriteria}}
+        <div style="margin-bottom: 16px;">
+            <strong>Критерии приёмки:</strong>
+            <ul class="list">
+                {{range .Idea.Enriched.AcceptanceCriteria}}
+                <li>{{.}}</li>
+                {{end}}
+            </ul>
+        </div>
+        {{end}}
+
+        {{if .Idea.Enriched.TechnicalNotes}}
+        <div class="prose" style="margin-bottom: 16px;">
+            <strong>Технические заметки:</strong><br>
+            {{.Idea.Enriched.TechnicalNotes}}
+        </div>
+        {{end}}
+
+        {{if .Idea.Enriched.PotentialRisks}}
+        <div style="margin-bottom: 16px;">
+            <strong>Потенциальные риски:</strong>
+            <ul class="list">
+                {{range .Idea.Enriched.PotentialRisks}}
+                <li>{{.}}</li>
+                {{end}}
+            </ul>
+        </div>
+        {{end}}
+    </div>
+    {{end}}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Управление</h3>
+    </div>
+
+    <form method="post" action="/ideas" style="margin-bottom: 16px;">
+        <input type="hidden" name="id" value="{{.Idea.ID}}">
+        <input type="hidden" name="action" value="update_status">
+
+        <div class="form-group">
+            <label>Статус</label>
+            <div style="display: flex; gap: 12px;">
+                <select name="status" style="flex: 1;">
+                    {{range $.AllStatuses}}
+                    <option value="{{.}}" {{if eq $.Idea.Status .}}selected{{end}}>{{.Label}}</option>
+                    {{end}}
+                </select>
+                <button type="submit" class="btn btn-primary">Обновить</button>
+            </div>
+        </div>
+    </form>
+
+    <form method="post" action="/ideas" style="margin-bottom: 16px;">
+        <input type="hidden" name="id" value="{{.Idea.ID}}">
+        <input type="hidden" name="action" value="update_notes">
+
+        <div class="form-group">
+            <label>Заметки администратора</label>
+            <textarea name="notes" placeholder="Добавьте заметки...">{{.Idea.AdminNotes}}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить заметки</button>
+    </form>
+
+    <hr style="border: none; border-top: 1px solid var(--gray-200); margin: 24px 0;">
+
+    <form method="post" action="/ideas" onsubmit="return confirm('Вы уверены, что хотите удалить эту идею?');">
+        <input type="hidden" name="id" value="{{.Idea.ID}}">
+        <input type="hidden" name="action" value="delete">
+        <button type="submit" class="btn btn-danger">Удалить идею</button>
+    </form>
+</div>
+{{end}}

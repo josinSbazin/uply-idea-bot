@@ -1,0 +1,93 @@
+{{template "layout" .}}
+
+{{define "content"}}
+<div class="stats">
+    <div class="stat">
+        <div class="stat-value">{{.TotalCount}}</div>
+        <div class="stat-label">Всего идей</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value">{{.NewCount}}</div>
+        <div class="stat-label">Новых</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Идеи</h2>
+    </div>
+
+    <form method="get" action="/ideas" class="filters">
+        <select name="status" onchange="this.form.submit()">
+            <option value="">Все статусы</option>
+            {{range .AllStatuses}}
+            <option value="{{.}}" {{if $.Filter.Status}}{{if eq (index $.Filter.Status 0) .}}selected{{end}}{{end}}>{{.Label}}</option>
+            {{end}}
+        </select>
+
+        <select name="category" onchange="this.form.submit()">
+            <option value="">Все категории</option>
+            {{range .AllCategories}}
+            <option value="{{.}}" {{if $.Filter.Category}}{{if eq (index $.Filter.Category 0) .}}selected{{end}}{{end}}>{{.Label}}</option>
+            {{end}}
+        </select>
+
+        <select name="priority" onchange="this.form.submit()">
+            <option value="">Все приоритеты</option>
+            {{range .AllPriorities}}
+            <option value="{{.}}" {{if $.Filter.Priority}}{{if eq (index $.Filter.Priority 0) .}}selected{{end}}{{end}}>{{.Label}}</option>
+            {{end}}
+        </select>
+
+        <a href="/ideas" class="btn btn-secondary btn-sm">Сбросить</a>
+    </form>
+
+    {{if .Ideas}}
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Название</th>
+                <th>Автор</th>
+                <th>Категория</th>
+                <th>Приоритет</th>
+                <th>Сложность</th>
+                <th>Статус</th>
+                <th>Дата</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Ideas}}
+            <tr>
+                <td>{{.ID}}</td>
+                <td>
+                    <a href="/ideas/{{.ID}}">
+                        {{if .Title}}{{truncate .Title 50}}{{else}}{{truncate .RawText 50}}{{end}}
+                    </a>
+                </td>
+                <td>
+                    {{if .TelegramUsername}}@{{.TelegramUsername}}{{else}}{{.TelegramFirstName}}{{end}}
+                </td>
+                <td>
+                    {{if .Category}}<span class="badge badge-{{.Category}}">{{.Category.Label}}</span>{{else}}<span class="text-muted">—</span>{{end}}
+                </td>
+                <td class="priority-{{.Priority}}">
+                    {{if .Priority}}{{.Priority.Label}}{{else}}<span class="text-muted">—</span>{{end}}
+                </td>
+                <td>
+                    {{if .Complexity}}{{.Complexity.Label}}{{else}}<span class="text-muted">—</span>{{end}}
+                </td>
+                <td><span class="badge badge-{{.Status}}">{{.Status.Label}}</span></td>
+                <td class="text-muted">{{formatDate .CreatedAt}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <div class="empty-state">
+        <h3>Нет идей</h3>
+        <p>Отправьте /idea в Telegram группе, чтобы добавить первую идею</p>
+    </div>
+    {{end}}
+</div>
+{{end}}
